@@ -28,16 +28,17 @@ login_url = "https://my.thanhnien.vn/page/login.html?redirect_url=https://thanhn
 def process_cell_value(cell_value):
     if cell_value is None or not str(cell_value).strip():
         return "", ""
-    # Chuyển giá trị thành chuỗi và làm sạch
-    cell_value = str(cell_value).strip()
-    # Tách email và mật khẩu bằng regex
+    # Chuyển giá trị thành chuỗi
+    cell_value = str(cell_value)
+    # Tách email và mật khẩu bằng regex, giữ nguyên dấu cách trong ngoặc kép
     email_pattern = r'Email: "(.*?)"'
     password_pattern = r'Mật khẩu: "(.*?)"'
     email_match = re.search(email_pattern, cell_value)
     password_match = re.search(password_pattern, cell_value)
 
-    email = email_match.group(1).strip() if email_match else ""
-    password = password_match.group(1).strip() if password_match else ""
+    # Lấy giá trị gốc, không trim
+    email = email_match.group(1) if email_match else ""
+    password = password_match.group(1) if password_match else ""
 
     # Xử lý trường hợp "(trống)"
     if email.lower() == "(trống)":
