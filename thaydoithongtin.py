@@ -180,9 +180,7 @@ else:
         # Nhập tên hiển thị
         if name != "(giữ nguyên)":
             try:
-                name_input = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, "input[data-ng-model='userInfo.displayName']"))
-                )
+                name_input = driver.find_element(By.CSS_SELECTOR, "input[data-ng-model='userInfo.displayName']")
                 name_input.clear()
                 time.sleep(0.5)
                 if name:
@@ -204,6 +202,7 @@ else:
                 else:
                     print(f"Test Case {index}: Giá trị giới tính '{gender}' không hợp lệ.")
                     sheet[f"E{row}"].value = f"Lỗi: Giá trị giới tính '{gender}' không hợp lệ"
+                    continue
                 gender_input.click()
                 time.sleep(0.5)
             except:
@@ -213,9 +212,8 @@ else:
         # Chọn ngày sinh
         if day and day != "(giữ nguyên)":
             try:
-                day_select = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, "select[data-ng-model='userInfo.dayOfBirth']"))
-                )
+                print("Debug - Bắt đầu tìm dropdown ngày sinh...")
+                day_select = driver.find_element(By.CSS_SELECTOR, "select[data-ng-model='userInfo.dayOfBirth']")
                 day_select.find_element(By.CSS_SELECTOR, f"option[value='{day}']").click()
                 time.sleep(0.5)
 
@@ -226,6 +224,7 @@ else:
                 year_select = driver.find_element(By.CSS_SELECTOR, "select[data-ng-model='userInfo.yearOfBirth']")
                 year_select.find_element(By.CSS_SELECTOR, f"option[value='{year}']").click()
                 time.sleep(0.5)
+                print("Debug - Chọn ngày sinh thành công.")
             except:
                 print(f"Test Case {index}: Không tìm thấy dropdown Ngày sinh.")
                 sheet[f"E{row}"].value = "Lỗi: Không tìm thấy dropdown Ngày sinh"
@@ -267,7 +266,7 @@ else:
         result_msg = ""
         try:
             # Kiểm tra thông báo thành công
-            success_msg = WebDriverWait(driver, 3).until(
+            success_msg = WebDriverWait(driver, 5).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "h4.alert-title"))
             )
             result_msg = success_msg.text
@@ -275,10 +274,26 @@ else:
         except:
             try:
                 # Kiểm tra toast thất bại
-                toast_msg = WebDriverWait(driver, 3).until(
+                toast_msg = WebDriverWait(driver, 5).until(
                     EC.presence_of_element_located((By.CSS_SELECTOR, "p.toast__msg"))
                 )
                 result_msg = toast_msg.text
                 print(f"Test Case {index}: Toast message - {result_msg}")
             except:
                 result_msg = "Không bắt được thông báo"
+                print(f"Test Case {index}: {result_msg}")
+
+        # Ghi kết quả vào cột E
+        sheet[f"E{row}"].value = result_msg
+        print(f"Debug - Ghi kết quả vào E{row}: '{result_msg}'")
+
+        # Tải lại trang cho test case tiếp theo
+        driver.get(profile_url)
+        time.sleep(0.5)
+
+# Lưu file Excel
+workbook.save(excel_path)
+
+# Đóng trình duyệt
+driver.quit()
+print(f"\nHoàn thành {len(test_cases)} test case. Kết quả đã được ghi vào cột E của file Excel.")
