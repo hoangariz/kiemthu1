@@ -265,20 +265,22 @@ else:
         # Bắt thông báo thành công hoặc thất bại
         result_msg = ""
         try:
-            # Kiểm tra thông báo thành công
-            success_msg = WebDriverWait(driver, 5).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "h4.alert-title"))
+            # Kiểm tra toast thất bại trước (do toast lỗi xuất hiện nhanh và biến mất sớm)
+            print("Debug - Kiểm tra toast thất bại...")
+            toast_msg = WebDriverWait(driver, 3).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "div.toast--error p.toast__msg"))
             )
-            result_msg = success_msg.text
-            print(f"Test Case {index}: Success message - {result_msg}")
+            result_msg = toast_msg.text
+            print(f"Test Case {index}: Toast message - {result_msg}")
         except:
+            print("Debug - Không tìm thấy toast thất bại, kiểm tra thông báo thành công...")
             try:
-                # Kiểm tra toast thất bại
-                toast_msg = WebDriverWait(driver, 5).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, "p.toast__msg"))
+                # Kiểm tra thông báo thành công
+                success_msg = WebDriverWait(driver, 5).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, "h4.alert-title"))
                 )
-                result_msg = toast_msg.text
-                print(f"Test Case {index}: Toast message - {result_msg}")
+                result_msg = success_msg.text
+                print(f"Test Case {index}: Success message - {result_msg}")
             except:
                 result_msg = "Không bắt được thông báo"
                 print(f"Test Case {index}: {result_msg}")
